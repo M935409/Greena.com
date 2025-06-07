@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate-key="page_title">Greena - متجر المنتجات السودانية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind CSS configuration for custom colors and font family
+        tailwind.config = {
+            darkMode: 'class', // Enable dark mode using the 'class' strategy
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-green': '#28a745',     // Main green for headings, buttons
+                        'light-green': '#d4edda',      // Light green for backgrounds/sections
+                        'dark-green': '#1e7e34',       // Darker green for text and accents
+                        'accent-green': '#4CAF50',     // A slightly brighter green for interactive elements
+                        'gray-light': '#f8f9fa',       // Light gray for body background
+                        'gray-medium': '#e9ecef',      // Medium gray for subtle separation
+                        'gray-dark': '#495057',        // Dark gray for general text
+                        // Dark mode specific colors
+                        'dark-bg': '#1a202c',           // Dark background
+                        'dark-surface': '#2d3748',      // Darker surface for cards/panels
+                        'dark-text': '#edf2f7',         // Light text on dark backgrounds
+                        'dark-border': '#4a5568',       // Subtle border in dark mode
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'], // Using Inter font as per instructions
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-track {
+            background: var(--gray-light); /* Light mode track */
+        }
+        body::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+        body::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-green);
+        }
+
+        /* Dark mode scrollbar styles */
+        .dark body::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        .dark body::-webkit-scrollbar-thumb {
+            background: var(--accent-green);
+        }
+        .dark body::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-green);
+        }
+
+
+        /* Styles for the cart overlay animation (slide-in from right in RTL) */
+        .cart-overlay {
+            transform: translateX(100%); /* Hidden by default (RTL) */
+            transition: transform 0.3s ease-out;
+        }
+        .cart-overlay.open {
+            transform: translateX(0); /* Visible when open (RTL) */
+        }
+
+        /* Styles for the settings overlay animation (slide-in from left in RTL) */
+        .settings-overlay {
+            transform: translateX(-100%); /* Hidden by default (RTL) */
+            transition: transform 0.3s ease-out;
+        }
+        .settings-overlay.open {
+            transform: translateX(0); /* Visible when open (RTL) */
+        }
+    </style>
+</head>
+<body class="bg-gray-light text-gray-dark font-sans p-4 md:p-8 relative dark:bg-dark-bg dark:text-dark-text transition-colors duration-300">
+    <!-- Main container for the entire store layout -->
+    <div class="container mx-auto bg-white p-6 md:p-10 rounded-xl shadow-lg dark:bg-dark-surface transition-colors duration-300">
+       <header class="text-center mb-8 md:mb-12 relative">
+    <!-- لوجو دائري -->
+    <img src="logo.jpg" alt="Greena Logo" class="w-32 h-32 mx-auto rounded-full shadow-md border-4 border-primary-green">
+    
+    <p class="text-xl md:text-2xl text-dark-green dark:text-light-green mt-4" data-translate-key="slogan">منتجات سودانية طبيعية</p>
+</header>
+
+            <!-- Shopping Cart Icon with Item Count -->
+            <button onclick="toggleCart()" class="absolute top-4 left-4 p-3 bg-primary-green text-white rounded-full shadow-lg hover:bg-dark-green transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent-green z-20">
+                <!-- Cart SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <!-- Cart Item Count Badge -->
+                <span id="cart-item-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </button>
+
+            <!-- Settings Icon -->
+            <button onclick="toggleSettings()" class="absolute top-4 right-4 p-3 bg-gray-500 text-white rounded-full shadow-lg hover:bg-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 z-20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Product Listings Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-green text-center mb-8 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:right-1/2 after:translate-x-1/2 after:w-20 after:h-1 after:bg-primary-green after:rounded-full" data-translate-key="our_products_heading">منتجاتنا</h2>
+            <!-- Container for displaying products, dynamically populated by JavaScript -->
+            <!-- Adjusted grid to show 2 items per row on small screens, and 3 on larger screens -->
+            <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Products will be injected here by JavaScript -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Custom Message Box (used instead of alert() for better UX) -->
+    <div id="messageBox" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center max-w-sm w-full relative dark:bg-dark-surface dark:text-dark-text transition-colors duration-300">
+            <h3 id="messageBoxTitle" class="text-2xl font-bold mb-4 text-primary-green"></h3>
+            <p id="messageBoxContent" class="text-gray-700 mb-6 dark:text-dark-text"></p>
+            <button onclick="closeMessageBox()" class="bg-primary-green hover:bg-dark-green text-white font-bold py-2 px-6 rounded-full transition-all duration-300" data-translate-key="ok_button">موافق</button>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Overlay (Slide-in from right) -->
+    <div id="cart-overlay" class="cart-overlay fixed top-0 right-0 h-full w-full sm:w-[450px] md:w-[550px] max-w-full bg-white shadow-2xl p-6 overflow-y-auto z-40 dark:bg-dark-surface dark:text-dark-text transition-colors duration-300">
+        <div class="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-dark-border">
+            <h2 class="text-2xl font-bold text-primary-green" data-translate-key="cart_heading">سلة المشتريات</h2>
+            <button onclick="toggleCart()" class="text-gray-600 hover:text-gray-900 transition-colors duration-200 dark:text-dark-text dark:hover:text-primary-green">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Empty cart message - moved outside the dynamic products container -->
+        <p class="text-center text-gray-dark mb-6 dark:text-dark-text" id="empty-cart-message-overlay" data-translate-key="cart_empty_message">سلة المشتريات فارغة.</p>
+
+        <!-- Container for displaying cart items dynamically -->
+        <div id="cart-product-list" class="min-h-[100px] mb-6">
+            <!-- Cart items will be injected here by JavaScript -->
+        </div>
+
+        <!-- Display for the total price of items in the cart within the overlay -->
+        <div class="flex justify-between items-center text-2xl font-bold text-dark-green border-t-2 border-primary-green pt-4 dark:text-light-green dark:border-accent-green">
+            <span data-translate-key="total_label">الإجمالي:</span>
+            <span id="cart-total-overlay">0.00 ر.س</span>
+        </div>
+
+        <!-- Customer Information Form Section - Now inside the cart overlay -->
+        <section id="customer-info-section" class="mt-8 pt-8 border-t border-gray-200 hidden dark:border-dark-border">
+            <h2 class="text-2xl font-bold text-primary-green text-center mb-6" data-translate-key="customer_info_heading">معلومات الزبون</h2>
+            <!-- Form fields for customer details -->
+            <div class="grid grid-cols-1 gap-4">
+                <!-- Full Name -->
+                <div class="flex flex-col">
+                    <label for="name" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_name">الاسم الكامل:</label>
+                    <input type="text" id="name" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="ادخل اسمك الكامل" data-translate-placeholder-key="placeholder_name">
+                </div>
+                <!-- Phone Number -->
+                <div class="flex flex-col">
+                    <label for="phone" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_phone">رقم الجوال:</label>
+                    <input type="text" id="phone" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="مثال: 05XXXXXXXX" data-translate-placeholder-key="placeholder_phone">
+                </div>
+                <!-- Alternative Phone Number -->
+                <div class="flex flex-col">
+                    <label for="altPhone" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_alt_phone">رقم بديل (اختياري):</label>
+                    <input type="text" id="altPhone" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="رقم جوال بديل" data-translate-placeholder-key="placeholder_alt_phone">
+                </div>
+                <!-- City -->
+                <div class="flex flex-col">
+                    <label for="city" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_city">المدينة:</label>
+                    <input type="text" id="city" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="ادخل المدينة" data-translate-placeholder-key="placeholder_city">
+                </div>
+                <!-- Address -->
+                <div class="flex flex-col">
+                    <label for="address" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_address">السكن/العنوان التفصيلي:</label>
+                    <textarea id="address" rows="3" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="الوصف الدقيق لموقعك (الشارع، الحي، رقم المنزل...)" data-translate-placeholder-key="placeholder_address"></textarea>
+                </div>
+                <!-- Landmark -->
+                <div class="flex flex-col">
+                    <label for="landmark" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_landmark">معلم بارز (اختياري):</label>
+                    <input type="text" id="landmark" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="أقرب معلم معروف" data-translate-placeholder-key="placeholder_landmark">
+                </div>
+                <!-- Google Map Link with auto-fill button -->
+                <div class="flex flex-col">
+                    <label for="mapLink" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_map_link">رابط موقعك من Google Map (اختياري):</label>
+                    <div class="flex">
+                        <input type="text" id="mapLink" class="p-3 border border-primary-green rounded-r-md flex-grow focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border" placeholder="انسخ رابط موقعك من خرائط جوجل" data-translate-placeholder-key="placeholder_map_link">
+                        <button onclick="getCurrentLocation()" class="bg-accent-green hover:bg-dark-green text-white font-bold py-2 px-4 rounded-l-md transition-all duration-200 flex-shrink-0 text-sm" data-translate-key="button_get_location">
+                            تحديد الموقع
+                        </button>
+                    </div>
+                </div>
+                <!-- Payment Method -->
+                <div class="flex flex-col">
+                    <label for="payment" class="mb-1 font-semibold text-dark-green text-sm dark:text-light-green" data-translate-key="label_payment_method">طريقة الدفع:</label>
+                    <select id="payment" class="p-3 border border-primary-green rounded-md focus:ring-2 focus:ring-accent-green focus:border-transparent transition-all duration-200 dark:bg-dark-surface dark:text-dark-text dark:border-dark-border">
+                        <option value="كاش" data-translate-key="payment_cash">كاش عند الاستلام</option>
+                        <option value="شبكة" data-translate-key="payment_mada_visa">شبكة (مدى/فيزا) عند الاستلام</option>
+                        <option value="تحويل بنكي" data-translate-key="payment_bank_transfer">تحويل بنكي (سيتم التواصل لتفاصيل التحويل)</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Submission Button - Now inside the cart overlay -->
+        <div class="text-center mt-8">
+            <button onclick="sendToWhatsApp()" id="whatsapp-order-button" class="bg-primary-green hover:bg-dark-green text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full disabled:opacity-50 disabled:cursor-not-allowed" disabled data-translate-key="send_whatsapp_button">
+                إرسال الطلب عبر واتساب
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Overlay (Slide-in from left) -->
+    <div id="settings-overlay" class="settings-overlay fixed top-0 left-0 h-full w-full sm:w-[350px] md:w-[400px] max-w-full bg-white shadow-2xl p-6 overflow-y-auto z-40 dark:bg-dark-surface dark:text-dark-text transition-colors duration-300">
+        <div class="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-dark-border">
+            <h2 class="text-2xl font-bold text-primary-green" data-translate-key="settings_heading">الإعدادات</h2>
+            <button onclick="toggleSettings()" class="text-gray-600 hover:text-gray-900 transition-colors duration-200 dark:text-dark-text dark:hover:text-primary-green">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-dark-green mb-3 dark:text-light-green" data-translate-key="language_heading">اللغة</h3>
+            <div class="flex justify-around gap-4">
+                <button onclick="setLanguage('ar')" class="flex-1 py-2 px-4 rounded-full font-bold transition-all duration-200 text-lg" id="lang-ar-button">
+                    العربية
+                </button>
+                <button onclick="setLanguage('en')" class="flex-1 py-2 px-4 rounded-full font-bold transition-all duration-200 text-lg" id="lang-en-button">
+                    English
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-dark-green mb-3 dark:text-light-green" data-translate-key="theme_heading">الوضع</h3>
+            <div class="flex justify-around gap-4">
+                <button onclick="toggleDarkMode()" class="flex-1 py-2 px-4 rounded-full font-bold transition-all duration-200 text-lg" id="theme-toggle-button">
+                    <span data-translate-key="light_mode">فاتح</span>
+                    <span data-translate-key="dark_mode" class="hidden">داكن</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data for available products, including ID, name, price, and image URL
+        const productsData = [
+            {
+                id: 'gum-arabic',
+                name: { ar: 'الصمغ العربي', en: 'Gum Arabic' },
+                price: 50.00,
+                imageUrl: 'https://7lzone.com/wp-content/uploads/2022/07/%D8%A7%D9%84%D8%B5%D9%85%D8%BA-%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A-%D8%A7%D9%84%D8%B3%D9%88%D8%AF%D8%A7%D9%86%D9%8A-%D8%A7%D9%84%D9%86%D8%B5%D8%B1-150-%D8%AC%D8%B1%D8%A7%D9%85.jpg'
+            },
+            {
+                id: 'sudanese-coffee',
+                name: { ar: 'القهوة السودانية', en: 'Sudanese Coffee' },
+                price: 35.00,
+                imageUrl: 'https://mostaql.hsoubcdn.com/uploads/thumbnails/61020/66294037d52d2/1943093622.jpg'
+            },
+            {
+                id: 'hibiscus',
+                name: { ar: 'الكركديه', en: 'Hibiscus' },
+                price: 20.00,
+                imageUrl: 'http://arabicgum.sd/wp-content/uploads/2017/06/type-hibiscus01.jpg'
+            },
+            {
+                id: 'arddeeb',
+                name: { ar: 'العرديب', en: 'Arddeeb (Tamarind)' },
+                price: 25.00,
+                imageUrl: 'https://imgy.pro/agrinews/1174x682/1220237135932314058830.jpg'
+            },
+            {
+                id: 'tebeldi',
+                name: { ar: 'التبلدي', en: 'Tebeldi (Baobab Fruit)' },
+                price: 40.00,
+                imageUrl: 'https://elnasrltd.com/wp-content/uploads/2016/08/slide-baobab.jpg'
+            },
+            {
+                id: 'sesame-oil',
+                name: { ar: 'زيت السمسم', en: 'Sesame Oil' },
+                price: 60.00,
+                imageUrl: 'https://nafezly-production.fra1.cdn.digitaloceanspaces.com/uploads/portfolios/44934_643767c01f404_1681352640.webp'
+            },
+            {
+                id: 'peanuts',
+                name: { ar: 'الفول السوداني', en: 'Peanuts' },
+                price: 15.00,
+                imageUrl: 'https://media.zid.store/65730a34-b013-4500-b975-df2ee30686dc/f44e14e8-fffc-4b92-b709-35ca10475144.jpeg'
+            },
+            {
+                id: 'talh',
+                name: { ar: 'الطلح', en: 'Talh (Acacia Gum)' },
+                price: 30.00,
+                imageUrl: 'https://static.sayidaty.net/styles/900_scale/public/2019/10/20/5974211-1865953194.jpg'
+            }
+        ];
+
+        // Translations object for multiple languages
+        const translations = {
+            'ar': {
+                'page_title': 'Greena - متجر المنتجات السودانية',
+                'store_name': 'متجر Greena',
+                'slogan': 'منتجات سودانية طبيعية',
+                'cart_icon_label': 'سلة المشتريات',
+                'our_products_heading': 'منتجاتنا',
+                'add_to_cart_button': 'أضف للسلة',
+                'quantity_label': 'الكمية',
+                'message_added_title': 'تمت الإضافة',
+                'message_added_content': (qty, name) => `${qty} من ${name} أضيف إلى السلة.`,
+                'message_invalid_quantity_title': 'كمية غير صالحة',
+                'message_invalid_quantity_content': 'الرجاء إدخال كمية صحيحة أكبر من صفر.',
+                'message_product_not_found': 'المنتج غير موجود.',
+                'ok_button': 'موافق',
+                'cart_heading': 'سلة المشتريات',
+                'cart_empty_message': 'سلة المشتريات فارغة.',
+                'total_label': 'الإجمالي:',
+                'remove_button': 'حذف',
+                'customer_info_heading': 'معلومات الزبون',
+                'label_name': 'الاسم الكامل:',
+                'placeholder_name': 'ادخل اسمك الكامل',
+                'label_phone': 'رقم الجوال:',
+                'placeholder_phone': 'مثال: 05XXXXXXXX',
+                'label_alt_phone': 'رقم بديل (اختياري):',
+                'placeholder_alt_phone': 'رقم جوال بديل',
+                'label_city': 'المدينة:',
+                'placeholder_city': 'ادخل المدينة',
+                'label_address': 'السكن/العنوان التفصيلي:',
+                'placeholder_address': 'الوصف الدقيق لموقعك (الشارع، الحي، رقم المنزل...)',
+                'label_landmark': 'معلم بارز (اختياري):',
+                'placeholder_landmark': 'أقرب معلم معروف',
+                'label_map_link': 'رابط موقعك من Google Map (اختياري):',
+                'placeholder_map_link': 'انسخ رابط موقعك من خرائط جوجل',
+                'button_get_location': 'تحديد الموقع',
+                'label_payment_method': 'طريقة الدفع:',
+                'payment_cash': 'كاش عند الاستلام',
+                'payment_mada_visa': 'شبكة (مدى/فيزا) عند الاستلام',
+                'payment_bank_transfer': 'تحويل بنكي (سيتم التواصل لتفاصيل التحويل)',
+                'send_whatsapp_button': 'إرسال الطلب عبر واتساب',
+                'message_cart_empty_order': 'الرجاء إضافة بعض المنتجات إلى سلة المشتريات قبل إرسال الطلب.',
+                'message_missing_info': 'الرجاء تعبئة جميع الحقول المطلوبة (الاسم الكامل، رقم الجوال، المدينة، السكن).',
+                'message_getting_location': 'جاري البحث عن موقعك، يرجى الموافقة على طلب الوصول للموقع.',
+                'message_location_success': 'تم ملء رابط موقعك بنجاح.',
+                'message_location_error_title': 'خطأ في تحديد الموقع',
+                'message_permission_denied': 'تم رفض الوصول إلى الموقع. يرجى السماح بذلك من إعدادات المتصفح.',
+                'message_position_unavailable': 'معلومات الموقع غير متوفرة حاليًا.',
+                'message_timeout': 'انتهت مهلة طلب تحديد الموقع.',
+                'message_unknown_error': 'حدث خطأ غير معروف أثناء تحديد الموقع.',
+                'message_geolocation_unsupported': 'متصفحك لا يدعم تحديد الموقع الجغرافي.',
+                'settings_heading': 'الإعدادات',
+                'language_heading': 'اللغة',
+                'theme_heading': 'الوضع',
+                'light_mode': 'فاتح',
+                'dark_mode': 'داكن',
+            },
+            'en': {
+                'page_title': 'Greena - Sudanese Products Store',
+                'store_name': 'Greena Store',
+                'slogan': 'Natural Sudanese Products',
+                'cart_icon_label': 'Shopping Cart',
+                'our_products_heading': 'Our Products',
+                'add_to_cart_button': 'Add to Cart',
+                'quantity_label': 'Quantity',
+                'message_added_title': 'Added to Cart',
+                'message_added_content': (qty, name) => `${qty} of ${name} added to cart.`,
+                'message_invalid_quantity_title': 'Invalid Quantity',
+                'message_invalid_quantity_content': 'Please enter a valid quantity greater than zero.',
+                'message_product_not_found': 'Product not found.',
+                'ok_button': 'OK',
+                'cart_heading': 'Shopping Cart',
+                'cart_empty_message': 'Your cart is empty.',
+                'total_label': 'Total:',
+                'remove_button': 'Remove',
+                'customer_info_heading': 'Customer Information',
+                'label_name': 'Full Name:',
+                'placeholder_name': 'Enter your full name',
+                'label_phone': 'Phone Number:',
+                'placeholder_phone': 'Example: 05XXXXXXXX',
+                'label_alt_phone': 'Alternative Phone (Optional):',
+                'placeholder_alt_phone': 'Alternative phone number',
+                'label_city': 'City:',
+                'placeholder_city': 'Enter city',
+                'label_address': 'Detailed Address:',
+                'placeholder_address': 'Exact description of your location (Street, Neighborhood, House number...)',
+                'label_landmark': 'Landmark (Optional):',
+                'placeholder_landmark': 'Nearest well-known landmark',
+                'label_map_link': 'Google Map Link (Optional):',
+                'placeholder_map_link': 'Copy your Google Maps link',
+                'button_get_location': 'Get Location',
+                'label_payment_method': 'Payment Method:',
+                'payment_cash': 'Cash on Delivery',
+                'payment_mada_visa': 'Mada/Visa on Delivery',
+                'payment_bank_transfer': 'Bank Transfer (We will contact you for details)',
+                'send_whatsapp_button': 'Send Order via WhatsApp',
+                'message_cart_empty_order': 'Please add some products to the cart before sending the order.',
+                'message_missing_info': 'Please fill in all required fields (Full Name, Phone Number, City, Address).',
+                'message_getting_location': 'Searching for your location, please approve location access.',
+                'message_location_success': 'Your location link has been successfully filled.',
+                'message_location_error_title': 'Location Error',
+                'message_permission_denied': 'Location access denied. Please allow it in browser settings.',
+                'message_position_unavailable': 'Location information is currently unavailable.',
+                'message_timeout': 'The request to get user location timed out.',
+                'message_unknown_error': 'An unknown error occurred while getting location.',
+                'message_geolocation_unsupported': 'Your browser does not support geolocation.',
+                'settings_heading': 'Settings',
+                'language_heading': 'Language',
+                'theme_heading': 'Theme',
+                'light_mode': 'Light',
+                'dark_mode': 'Dark',
+            }
+        };
+
+        // Global state variables for language and dark mode
+        let currentLanguage = localStorage.getItem('greena_lang') || 'ar'; // Default to Arabic
+        let isDarkMode = localStorage.getItem('greena_dark_mode') === 'true'; // Default to false
+
+        // Array to store items currently in the shopping cart.
+        let cart = []; // Each item in cart: { id: string, name: object (translations), price: number, quantity: number }
+
+        /**
+         * Updates the text content and placeholders of elements based on the current language.
+         */
+        function updateContentLanguage() {
+            // Update page title
+            document.title = translations[currentLanguage]['page_title'];
+
+            // Update direction attribute of html tag
+            document.documentElement.dir = (currentLanguage === 'ar' ? 'rtl' : 'ltr');
+            document.documentElement.lang = currentLanguage;
+
+            // Update text content
+            document.querySelectorAll('[data-translate-key]').forEach(element => {
+                const key = element.getAttribute('data-translate-key');
+                if (translations[currentLanguage][key] && typeof translations[currentLanguage][key] === 'string') {
+                    element.innerText = translations[currentLanguage][key];
+                }
+            });
+
+            // Update placeholder attributes
+            document.querySelectorAll('[data-translate-placeholder-key]').forEach(element => {
+                const key = element.getAttribute('data-translate-placeholder-key');
+                if (translations[currentLanguage][key] && typeof translations[currentLanguage][key] === 'string') {
+                    element.placeholder = translations[currentLanguage][key];
+                }
+            });
+
+            // Handle specific cases for option elements within select
+            const paymentSelect = document.getElementById('payment');
+            if (paymentSelect) {
+                Array.from(paymentSelect.options).forEach(option => {
+                    const key = option.getAttribute('data-translate-key');
+                    if (key && translations[currentLanguage][key]) {
+                        option.innerText = translations[currentLanguage][key];
+                    }
+                });
+            }
+
+            // Update active language button styles
+            document.getElementById('lang-ar-button').classList.remove('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+            document.getElementById('lang-ar-button').classList.add('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-dark-text');
+            document.getElementById('lang-en-button').classList.remove('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+            document.getElementById('lang-en-button').classList.add('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-dark-text');
+
+            if (currentLanguage === 'ar') {
+                document.getElementById('lang-ar-button').classList.remove('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-dark-text');
+                document.getElementById('lang-ar-button').classList.add('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+            } else {
+                document.getElementById('lang-en-button').classList.remove('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-dark-text');
+                document.getElementById('lang-en-button').classList.add('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+            }
+
+            // Re-render products and cart to update names
+            renderProducts();
+            renderCart();
+        }
+
+        /**
+         * Sets the application language and updates the UI.
+         * @param {string} lang - The language code ('ar' or 'en').
+         */
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('greena_lang', lang);
+            updateContentLanguage();
+        }
+
+        /**
+         * Toggles between dark and light mode.
+         */
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-toggle-button').querySelector('[data-translate-key="light_mode"]').classList.add('hidden');
+                document.getElementById('theme-toggle-button').querySelector('[data-translate-key="dark_mode"]').classList.remove('hidden');
+                document.getElementById('theme-toggle-button').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('theme-toggle-button').classList.add('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-toggle-button').querySelector('[data-translate-key="light_mode"]').classList.remove('hidden');
+                document.getElementById('theme-toggle-button').querySelector('[data-translate-key="dark_mode"]').classList.add('hidden');
+                document.getElementById('theme-toggle-button').classList.remove('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+                document.getElementById('theme-toggle-button').classList.add('bg-gray-200', 'text-gray-700');
+            }
+            localStorage.setItem('greena_dark_mode', isDarkMode);
+        }
+
+        /**
+         * Displays a custom message box to the user.
+         * This function is used instead of browser's default alert().
+         * @param {string} title - The title of the message box.
+         * @param {string} message - The main content message to display.
+         */
+        function showMessageBox(title, message) {
+            document.getElementById('messageBoxTitle').innerText = title;
+            document.getElementById('messageBoxContent').innerText = message;
+            document.getElementById('messageBox').classList.remove('hidden'); // Show the message box
+        }
+
+        /**
+         * Hides the custom message box from view.
+         */
+        function closeMessageBox() {
+            document.getElementById('messageBox').classList.add('hidden'); // Hide the message box
+        }
+
+        /**
+         * Toggles the visibility of the shopping cart overlay.
+         */
+        function toggleCart() {
+            document.getElementById('cart-overlay').classList.toggle('open');
+            // When opening the cart, ensure the display is updated
+            if (document.getElementById('cart-overlay').classList.contains('open')) {
+                renderCart();
+            }
+        }
+
+        /**
+         * Toggles the visibility of the settings overlay.
+         */
+        function toggleSettings() {
+            document.getElementById('settings-overlay').classList.toggle('open');
+        }
+
+        /**
+         * Updates the item count displayed on the cart icon.
+         */
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-item-count').innerText = totalItems;
+        }
+
+        /**
+         * Renders all products from `productsData` into the 'products-container' div.
+         * Each product includes its name, price, an image, a quantity input, and an "Add to Cart" button.
+         */
+        function renderProducts() {
+            const productsContainer = document.getElementById('products-container');
+            productsContainer.innerHTML = ''; // Clear any existing product elements to prevent duplicates
+
+            // Iterate over each product in the data array
+            productsData.forEach(product => {
+                const productDiv = document.createElement('div');
+                // Apply Tailwind classes for styling individual product cards
+                productDiv.className = 'bg-light-green p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:scale-105 dark:bg-dark-surface dark:border dark:border-dark-border dark:text-dark-text';
+                productDiv.innerHTML = `
+                    <img src="${product.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/128x128/cccccc/000000?text=Image+Error';" alt="${product.name[currentLanguage]}" class="w-32 h-32 object-cover rounded-md mb-4 border-2 border-primary-green">
+                    <h3 class="text-xl font-bold text-dark-green mb-2 dark:text-light-green">${product.name[currentLanguage]}</h3>
+                    <p class="text-lg font-semibold text-gray-700 mb-4 dark:text-dark-text">${product.price.toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'}</p>
+                    <div class="flex items-center justify-center mb-4 w-full">
+                        <label for="quantity-${product.id}" class="sr-only" data-translate-key="quantity_label">${translations[currentLanguage]['quantity_label']}</label>
+                        <input type="number" id="quantity-${product.id}" value="1" min="1" class="w-20 p-2 border border-primary-green rounded-l-md text-center text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-green dark:bg-dark-bg dark:text-dark-text dark:border-dark-border">
+                        <button onclick="addToCart('${product.id}')" class="bg-primary-green hover:bg-dark-green text-white font-bold py-2 px-4 rounded-r-md transition-all duration-200 flex-shrink-0" data-translate-key="add_to_cart_button">
+                            ${translations[currentLanguage]['add_to_cart_button']}
+                        </button>
+                    </div>
+                `;
+                productsContainer.appendChild(productDiv); // Add the product card to the container
+            });
+        }
+
+        /**
+         * Adds a specified quantity of a product to the shopping cart.
+         * If the product already exists in the cart, its quantity is updated.
+         * Otherwise, it's added as a new item.
+         * @param {string} productId - The unique ID of the product to add.
+         */
+        function addToCart(productId) {
+            const product = productsData.find(p => p.id === productId); // Find the product in the master data
+            const quantityInput = document.getElementById(`quantity-${productId}`);
+            let quantity = parseInt(quantityInput.value); // Get the quantity entered by the user
+
+            // Validate if the product exists and quantity is valid
+            if (!product) {
+                showMessageBox(translations[currentLanguage]['message_product_not_found'], translations[currentLanguage]['message_product_not_found']);
+                return;
+            }
+            if (isNaN(quantity) || quantity <= 0) {
+                showMessageBox(translations[currentLanguage]['message_invalid_quantity_title'], translations[currentLanguage]['message_invalid_quantity_content']);
+                quantityInput.value = 1; // Reset quantity input to 1
+                return;
+            }
+
+            const existingCartItem = cart.find(item => item.id === productId); // Check if product is already in cart
+
+            if (existingCartItem) {
+                existingCartItem.quantity += quantity; // If exists, just update quantity
+            } else {
+                // If new product, add it to the cart array
+                cart.push({
+                    id: product.id,
+                    name: product.name, // Store the translation object
+                    price: product.price,
+                    quantity: quantity
+                });
+            }
+            showMessageBox(translations[currentLanguage]['message_added_title'], translations[currentLanguage]['message_added_content'](quantity, product.name[currentLanguage]));
+            quantityInput.value = 1; // Reset quantity input to 1 after adding
+            renderCart(); // Re-render the cart display to reflect changes
+            updateCartCount(); // Update the cart icon badge
+        }
+
+        /**
+         * Removes one unit of a product from the shopping cart.
+         * If the quantity becomes zero, the product is completely removed from the cart.
+         * @param {string} productId - The unique ID of the product to remove.
+         */
+        function removeFromCart(productId) {
+            const itemIndex = cart.findIndex(item => item.id === productId); // Find the index of the item in the cart
+
+            if (itemIndex > -1) { // Check if the item exists in the cart
+                if (cart[itemIndex].quantity > 1) {
+                    cart[itemIndex].quantity--; // Decrease quantity if more than one
+                } else {
+                    cart.splice(itemIndex, 1); // Remove the item completely if quantity is 1
+                }
+            }
+            renderCart(); // Re-render the cart display to reflect changes
+            updateCartCount(); // Update the cart icon badge
+        }
+
+        /**
+         * Renders the current state of the shopping cart, displaying items and total price.
+         * It updates the UI elements for cart items and the total sum.
+         * It also manages the visibility of the customer information form and WhatsApp button.
+         */
+        function renderCart() {
+            const cartProductList = document.getElementById('cart-product-list'); // New ID for dynamically added items
+            const cartTotalSpan = document.getElementById('cart-total-overlay');
+            const emptyCartMessageOverlay = document.getElementById('empty-cart-message-overlay');
+            const customerInfoSection = document.getElementById('customer-info-section');
+            const whatsappOrderButton = document.getElementById('whatsapp-order-button');
+
+            cartProductList.innerHTML = ''; // Clear current cart product display
+            let total = 0;
+
+            if (cart.length === 0) {
+                emptyCartMessageOverlay.classList.remove('hidden'); // Show "Cart is empty" message
+                customerInfoSection.classList.add('hidden');
+                whatsappOrderButton.disabled = true;
+            } else {
+                emptyCartMessageOverlay.classList.add('hidden'); // Hide "Cart is empty" message
+                customerInfoSection.classList.remove('hidden');
+                whatsappOrderButton.disabled = false;
+
+                cart.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    // Apply Tailwind classes for styling individual cart items
+                    itemDiv.className = 'flex flex-col sm:flex-row justify-between items-center bg-white p-3 mb-2 rounded-md shadow-sm border border-gray-200 dark:bg-dark-surface dark:border-dark-border';
+                    itemDiv.innerHTML = `
+                        <span class="text-dark-green font-semibold mb-2 sm:mb-0 dark:text-dark-text">${item.name[currentLanguage]} (x${item.quantity})</span>
+                        <span class="text-primary-green font-bold mb-2 sm:mb-0">${(item.price * item.quantity).toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'}</span>
+                        <button onclick="removeFromCart('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded-full transition-colors duration-200" data-translate-key="remove_button">
+                            ${translations[currentLanguage]['remove_button']}
+                        </button>
+                    `;
+                    cartProductList.appendChild(itemDiv); // Append to the new container
+                    total += item.price * item.quantity;
+                });
+            }
+            cartTotalSpan.innerText = `${total.toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'}`; // Update the displayed total price
+            updateCartCount(); // Ensure the cart icon count is updated
+        }
+
+        /**
+         * Gathers all the collected order details (customer info and cart items)
+         * and formats them into a message to be sent via WhatsApp.
+         * Performs basic validation before attempting to send the message.
+         */
+        function sendToWhatsApp() {
+            // Validate if the cart is empty
+            if (cart.length === 0) {
+                showMessageBox(translations[currentLanguage]['message_cart_empty_order'], translations[currentLanguage]['message_cart_empty_order']);
+                return;
+            }
+
+            // Get customer information from input fields within the cart overlay and trim whitespace
+            let name = document.getElementById('name').value.trim();
+            let phone = document.getElementById('phone').value.trim();
+            let altPhone = document.getElementById('altPhone').value.trim();
+            let city = document.getElementById('city').value.trim();
+            let address = document.getElementById('address').value.trim();
+            let landmark = document.getElementById('landmark').value.trim();
+            let mapLink = document.getElementById('mapLink').value.trim();
+            let payment = document.getElementById('payment').value; // Get selected payment method
+
+            // Basic form validation for required fields
+            if (!name || !phone || !city || !address) {
+                showMessageBox(translations[currentLanguage]['message_missing_info'], translations[currentLanguage]['message_missing_info']);
+                return;
+            }
+
+            // Format the list of products in the cart for the message
+            let productsSummary = cart.map(item =>
+                `${item.name[currentLanguage]} (${translations[currentLanguage]['quantity_label']}: ${item.quantity}) - ${(item.price * item.quantity).toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'}`
+            ).join("\n"); // Join each product line with a new line
+
+            // Calculate the grand total for all items in the cart
+            let grandTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Construct the full WhatsApp message string
+            let message = `*${translations[currentLanguage]['store_name']}*\n` +
+                `---------------------------\n` +
+                `*${translations[currentLanguage]['customer_info_heading']}:*\n` +
+                `${translations[currentLanguage]['label_name'].replace(':', '')}: ${name}\n` +
+                `${translations[currentLanguage]['label_phone'].replace(':', '')}: ${phone}\n`;
+
+            if (altPhone) message += `${translations[currentLanguage]['label_alt_phone'].replace(' (اختياري):', '').replace(' (Optional):', '')}: ${altPhone}\n`; // Add alternative phone if provided
+            message += `${translations[currentLanguage]['label_city'].replace(':', '')}: ${city}\n` +
+                `${translations[currentLanguage]['label_address'].replace(':', '')}: ${address}\n`;
+            if (landmark) message += `${translations[currentLanguage]['label_landmark'].replace(' (اختياري):', '').replace(' (Optional):', '')}: ${landmark}\n`; // Add landmark if provided
+            if (mapLink) message += `${translations[currentLanguage]['label_map_link'].replace(' (اختياري):', '').replace(' (Optional):', '')}: ${mapLink}\n`;     // Add Google Maps link if provided
+            message += `${translations[currentLanguage]['label_payment_method'].replace(':', '')}: ${translations[currentLanguage][`payment_${payment === 'كاش' ? 'cash' : (payment === 'شبكة' ? 'mada_visa' : 'bank_transfer')}`]}\n` +
+                `---------------------------\n` +
+                `*${translations[currentLanguage]['our_products_heading']}:*\n` +
+                `${productsSummary}\n` +
+                `---------------------------\n` +
+                `*${translations[currentLanguage]['total_label'].replace(':', '')}: ${grandTotal.toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'}*`;
+
+            // Encode the message for use in a URL
+            let encoded = encodeURIComponent(message);
+            // Construct the WhatsApp URL with the pre-filled message. Replace '966561860920' with your actual WhatsApp number.
+            let whatsappURL = `https://wa.me/966561860920?text=${encoded}`;
+
+            // Open the WhatsApp URL in a new browser tab
+            window.open(whatsappURL, '_blank');
+        }
+
+        /**
+         * Attempts to get the user's current location using the Geolocation API
+         * and populates the Google Map link input field.
+         */
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                showMessageBox(translations[currentLanguage]['button_get_location'], translations[currentLanguage]['message_getting_location']);
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        closeMessageBox(); // Close loading message
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        // Construct a Google Maps URL for the given coordinates
+                        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+                        document.getElementById('mapLink').value = googleMapsUrl;
+                        showMessageBox(translations[currentLanguage]['message_location_success'], translations[currentLanguage]['message_location_success']);
+                    },
+                    (error) => {
+                        closeMessageBox(); // Close loading message
+                        let errorMessage = translations[currentLanguage]['message_unknown_error'];
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = translations[currentLanguage]['message_permission_denied'];
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = translations[currentLanguage]['message_position_unavailable'];
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = translations[currentLanguage]['message_timeout'];
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                errorMessage = translations[currentLanguage]['message_unknown_error'];
+                                break;
+                        }
+                        showMessageBox(translations[currentLanguage]['message_location_error_title'], errorMessage);
+                    },
+                    {
+                        enableHighAccuracy: true, // Request a more accurate position
+                        timeout: 10000,            // Maximum time in milliseconds to wait for a position
+                        maximumAge: 0              // Don't use a cached position
+                    }
+                );
+            } else {
+                showMessageBox(translations[currentLanguage]['message_location_error_title'], translations[currentLanguage]['message_geolocation_unsupported']);
+            }
+        }
+
+        /**
+         * Initializes settings (language and dark mode) from local storage
+         * and applies them to the UI on page load.
+         */
+        function initSettings() {
+            // Apply dark mode preference
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            // Update the theme toggle button text
+            const themeToggleButton = document.getElementById('theme-toggle-button');
+            if (themeToggleButton) {
+                if (isDarkMode) {
+                    themeToggleButton.querySelector('[data-translate-key="light_mode"]').classList.add('hidden');
+                    themeToggleButton.querySelector('[data-translate-key="dark_mode"]').classList.remove('hidden');
+                    themeToggleButton.classList.remove('bg-gray-200', 'text-gray-700');
+                    themeToggleButton.classList.add('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+                } else {
+                    themeToggleButton.querySelector('[data-translate-key="light_mode"]').classList.remove('hidden');
+                    themeToggleButton.querySelector('[data-translate-key="dark_mode"]').classList.add('hidden');
+                    themeToggleButton.classList.remove('bg-primary-green', 'text-white', 'dark:bg-accent-green', 'dark:text-dark-text');
+                    themeToggleButton.classList.add('bg-gray-200', 'text-gray-700');
+                }
+            }
+
+            // Apply language preference
+            updateContentLanguage();
+        }
+
+        // Initialize the store when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initSettings();      // Initialize settings (language and dark mode)
+        });
+    </script>
+</body>
+</html>
